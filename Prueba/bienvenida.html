@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Bienvenida Liceo Cursos</title>
+    <!-- Google Fonts: Montserrat & Nunito -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:700,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 28px;
+            color: #28417b;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        .contenedor-flex {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 44px;
+            margin: 36px 0;
+            flex-wrap: wrap;
+        }
+        .card-form {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 6px 32px 0 #23448717;
+            padding: 36px 32px 30px 32px;
+            min-width: 290px;
+            max-width: 330px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .logo-circle {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg,#6ac7f7 40%,#234487 100%);
+            border-radius: 50%;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-circle span {
+            font-family: 'Montserrat', Arial, sans-serif;
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+            letter-spacing: 0.03em;
+        }
+        .card-form label {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            font-weight: 600;
+            font-size: 1.03em;
+            color: #234487;
+            letter-spacing: 0.01em;
+        }
+        .card-form input[type="text"] {
+            width: 100%;
+            padding: 12px 11px;
+            margin: 7px 0 0 0;
+            border-radius: 10px;
+            border: 1.5px solid #dde4f7;
+            font-size: 1.06em;
+            background: #f5f7fb;
+            transition: border 0.2s;
+        }
+        .card-form input[type="text"]:focus {
+            outline: none;
+            border-color: #6ac7f7;
+        }
+        .card-form button[type="submit"], #descargar {
+            margin-top: 22px;
+            padding: 11px 0;
+            width: 100%;
+            background: linear-gradient(90deg,#6ac7f7 20%,#234487 100%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.12em;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            box-shadow: 0 2px 7px 0 #1a254926;
+            transition: background 0.3s, box-shadow 0.2s;
+            letter-spacing: 0.04em;
+        }
+        .card-form button[type="submit"]:hover, #descargar:hover {
+            background: linear-gradient(90deg,#234487 20%, #6ac7f7 100%);
+            box-shadow: 0 4px 16px 0 #1a254935;
+        }
+        #descargar {
+            display: none;
+            margin-top: 8px;
+            margin-bottom: -8px;
+        }
+        /* Canvas responsivo */
+        #canvas {
+            border: 1.5px solid #e4e8f3;
+            border-radius: 15px;
+            background: #fff;
+            margin-top: 0;
+            box-shadow: 0 2px 18px 0 #23448712;
+            width: 100%;
+            max-width: 500px;
+            height: auto !important;
+            aspect-ratio: 1 / 1; /* Para que no se deforme */
+            display: block;
+        }
+        /* Media Query Mejorado */
+        @media (max-width: 1050px) {
+            .contenedor-flex {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+            }
+            .card-form, #canvas {
+                width: 96vw !important;
+                max-width: 460px;
+            }
+        }
+        @media (max-width: 600px) {
+            .card-form, #canvas {
+                max-width: 99vw;
+                min-width: unset;
+                padding: 18px 4vw 18px 4vw;
+            }
+            #canvas {
+                margin-bottom: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Generador de Bienvenida</h2>
+    <div class="contenedor-flex">
+        <form id="form" class="card-form">
+            <div class="logo-circle"><span>LQ</span></div>
+            <label for="nombre">Nombre:
+                <input type="text" id="nombre" required autocomplete="off">
+            </label>
+            <label for="usuario">Usuario:
+                <input type="text" id="usuario" required autocomplete="off">
+            </label>
+            <label for="password">Contraseña:
+                <input type="text" id="password" required autocomplete="off">
+            </label>
+            <button type="submit">Generar</button>
+            <button id="descargar" type="button">Descargar imagen</button>
+        </form>
+        <canvas id="canvas" width="768" height="768"></canvas>
+    </div>
+    <script>
+        const form = document.getElementById('form');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = 'bienvenida.jpg';
+
+        // Carga la fuente Montserrat para canvas
+        const montserrat = new FontFace('Montserrat', 'url(https://fonts.gstatic.com/s/montserrat/v26/JTUQjIg1_i6t8kCHKm45_Qphzf7l.woff2)');
+        montserrat.load().then(function (loaded_face) {
+            document.fonts.add(loaded_face);
+        });
+
+        img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); };
+
+        form.onsubmit = async function (e) {
+            e.preventDefault();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // === Nombre (inclinado, con sombra sutil y autoajuste de tamaño) ===
+            ctx.save();
+            ctx.translate(448, 328);
+            ctx.rotate(-0.18);
+            let fontSize = 30;
+            let maxWidth = 260;
+            let nombre = document.getElementById('nombre').value;
+            ctx.font = `bold ${fontSize}px Arial`;
+            while (ctx.measureText(nombre).width > maxWidth && fontSize > 10) {
+                fontSize -= 1;
+                ctx.font = `bold ${fontSize}px Arial`;
+            }
+            ctx.shadowColor = "rgba(0,0,0,0.18)";
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 1.4;
+            ctx.shadowOffsetY = 1.2;
+            ctx.fillStyle = "#000";
+            ctx.textAlign = "left";
+            ctx.fillText(nombre, 0, 0);
+            ctx.restore();
+
+            // === Usuario y Password con Montserrat (moderna) ===
+            ctx.font = "bold 18px Montserrat";
+            ctx.fillStyle = "#234487";
+            ctx.textAlign = "left";
+            ctx.shadowColor = "rgba(0,0,0,0.07)";
+            ctx.shadowBlur = 0.7;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.fillText("Usuario: " + document.getElementById('usuario').value, 283, 500);
+
+            ctx.font = "bold 18px Montserrat";
+            ctx.fillText("Password: " + document.getElementById('password').value, 283, 540);
+
+            ctx.shadowColor = "transparent";
+
+            document.getElementById('descargar').style.display = 'inline-block';
+        };
+
+        document.getElementById('descargar').onclick = function () {
+            const link = document.createElement('a');
+            let nombreArchivo = document.getElementById('nombre').value.trim();
+            if (!nombreArchivo) nombreArchivo = "bienvenida";
+            nombreArchivo = nombreArchivo.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ _-]/g, "");
+            link.download = nombreArchivo + ".png";
+            link.href = canvas.toDataURL();
+            link.click();
+        };
+    </script>
+</body>
+</html>
